@@ -1,0 +1,16 @@
+/*
+  X-Content-Type-Options: nosniff
+  Referrer-Policy: strict-origin-when-cross-origin
+  X-Frame-Options: DENY
+  Content-Security-Policy: frame-ancestors 'none'; object-src 'none'; base-uri 'self'; form-action 'self'
+
+/reconcile/*
+  Content-Security-Policy: default-src 'none'; script-src 'self'; style-src 'self'; img-src 'self' blob: data:; font-src 'self'; worker-src 'self'; connect-src 'self' https://cdn.jsdelivr.net; frame-src https://filefreely.com/assets/page-analytics.html; frame-ancestors 'none'; object-src 'none'; base-uri 'none'; form-action 'none'
+  Referrer-Policy: no-referrer
+  X-Content-Type-Options: nosniff
+  X-Frame-Options: DENY
+
+/assets/page-analytics.html
+  Content-Security-Policy: default-src 'none'; script-src 'self' https://www.googletagmanager.com; connect-src https://*.google-analytics.com https://*.analytics.google.com https://www.googletagmanager.com; img-src https://*.google-analytics.com https://*.analytics.google.com; frame-ancestors https://filefreely.com; object-src 'none'; base-uri 'none'; form-action 'none'
+  Referrer-Policy: no-referrer
+  X-Robots-Tag: noindex

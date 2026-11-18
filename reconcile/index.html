@@ -1,0 +1,178 @@
+<!doctype html>
+<html lang="en-US"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="color-scheme" content="light dark">
+<title>Supplier Statement Reconciliation | FileFreely</title><meta name="description" content="Compare a supplier statement PDF, CSV or XLSX with your accounts payable export. Review missing invoices and differences. Download an Excel report.">
+<link rel="canonical" href="https://filefreely.com/reconcile/"><link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<meta property="og:type" content="website"><meta property="og:site_name" content="FileFreely"><meta property="og:title" content="Supplier Statement Reconciliation | FileFreely">
+<meta property="og:url" content="https://filefreely.com/reconcile/"><meta property="og:description" content="Compare a supplier statement PDF, CSV or XLSX with your accounts payable export. Review missing invoices and differences. Download an Excel report.">
+<link rel="stylesheet" href="/assets/site.css"><link rel="stylesheet" href="./reconcile.css">
+<script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"WebApplication","name":"FileFreely Reconcile","url":"https://filefreely.com/reconcile/","description":"Compare a supplier statement PDF, CSV or XLSX with your accounts payable export. Review missing invoices and differences. Download an Excel report.","applicationCategory":"BusinessApplication","operatingSystem":"Any","offers":{"@type":"Offer","price":0,"priceCurrency":"USD"}},{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://filefreely.com/"},{"@type":"ListItem","position":2,"name":"Supplier Statement Reconciliation","item":"https://filefreely.com/reconcile/"}]}]}</script></head><body>
+<header class="site-header"><div class="in"><a class="brand" href="/"><svg viewBox="0 0 32 32" aria-hidden="true"><rect width="32" height="32" rx="9" fill="var(--accent)"/><path d="M11 7h7l5 5v13H11z" fill="none" stroke="var(--accent-ink)" stroke-width="2.2" stroke-linejoin="round"/><path d="M18 7v5h5" fill="none" stroke="var(--accent-ink)" stroke-width="2.2" stroke-linejoin="round"/><circle cx="23.5" cy="23.5" r="4.5" fill="var(--hi)"/></svg><span>FileFreely</span></a><nav class="site-nav" aria-label="Main"><a href="/merge-pdf/">Merge PDF</a><a href="/compress-image/">Compress Image</a><a href="/heic-to-jpg/">HEIC to JPG</a><a href="/#all-tools">All tools</a></nav></div></header>
+<main class="rec" id="main">
+<section class="rec-hero">
+  <p class="rec-kicker">FileFreely Reconcile · Accounts payable</p>
+  <h1>Supplier Statement Reconciliation</h1>
+  <p class="rec-lede">Compare a supplier statement with your accounts payable ledger. Find missing invoices, amount differences, duplicate references, and credits that need review.</p>
+  <p class="rec-private">Files and financial values stay in this browser. No accounting login or upload to a server.</p>
+</section>
+<ol class="rec-steps" aria-label="Workflow">
+  <li>1. Upload</li><li>2. Configure</li><li>3. Reconcile</li><li>4. Review</li><li>5. Supplier Handoff</li><li>6. Export</li>
+</ol>
+<p><a href="/supplier-statement-reconciliation-example/">Download sample files and see the finished Excel report</a> · <a href="/reconcile-setup/">Recurring layout setup</a></p>
+<noscript><p class="rec-panel">Enable JavaScript to reconcile files locally.</p></noscript>
+<section class="rec-panel" aria-labelledby="upload-heading">
+  <h2 id="upload-heading">1. Choose and preview your files</h2>
+  <p>Select the data table from each file. This tool supports digital PDFs with selectable text. Scans require an OCR export first.</p>
+  <div class="rec-grid" id="sources"></div>
+</section>
+<section class="rec-panel" aria-labelledby="scope-heading">
+  <h2 id="scope-heading">2. Confirm the scope and map columns</h2>
+  <div class="rec-grid rec-fields">
+    <label>Supplier name <input id="supplier" maxlength="120" autocomplete="off" placeholder="Example supplier"></label>
+    <label>Currency <select id="currency"><option>USD</option><option>GBP</option><option>EUR</option><option>CAD</option><option>AUD</option><option>INR</option><option>JPY</option></select></label>
+    <label>Reconciliation type <select id="mode"><option value="open">Open items as of a cutoff</option><option value="period">Period activity</option></select></label>
+    <label>Amount basis <select id="basis"><option value="balance">Outstanding balance</option><option value="original">Original invoice amount</option></select></label>
+    <label id="period-start" hidden>Period start <input type="date" id="start"></label>
+    <label>Statement cutoff <input type="date" id="cutoff"></label>
+    <label>Date scope <select id="scope"><option value="export">My exports are already filtered</option><option value="date">Filter period activity by mapped date</option></select></label>
+  </div>
+  <p class="rec-muted">Use one supplier and one currency in both files. Open balances must be exported as of the cutoff. Document dates alone cannot reconstruct historical balances.</p>
+  <label class="rec-check"><input type="checkbox" id="compatible"> Both files cover the same supplier, currency, reporting scope, and amount basis.</label>
+  <div class="rec-grid" id="mappings"></div>
+  <label class="rec-check"><input type="checkbox" id="remember"> Remember column positions and parsing preferences on this device.</label>
+  <p class="rec-muted">Saved preferences exclude supplier names, file names, dates, values, and reviewer notes. Review remembered positions when a file layout changes.</p>
+  <details>
+    <summary>Import unresolved items from an earlier statement</summary>
+    <p>Choose a FileFreely carry-forward JSON for the same supplier, currency and amount basis. Download your register before changing the inputs if you want to keep this run’s notes and approvals.</p>
+    <div class="rec-actions"><label>Carry-forward file <input id="carry-file" type="file" accept=".json,application/json"></label>
+      <button id="carry-remove" class="rec-secondary" type="button" disabled>Remove carry-forward file</button></div>
+    <p id="carry-status" role="status">No carry-forward file selected.</p>
+  </details>
+  <div class="rec-actions"><button id="run" type="button" disabled>3. Run reconciliation</button><button id="cancel" type="button" class="rec-secondary" hidden>Cancel and clear</button><button id="clear" type="button" class="rec-secondary">Clear documents</button></div>
+  <progress id="progress" aria-label="Processing progress" hidden></progress>
+  <p id="status" role="status" aria-live="polite">Choose both files to start.</p>
+</section>
+<section class="rec-panel" id="results" hidden aria-labelledby="result-heading">
+  <h2 id="result-heading" tabindex="-1">4. Review reconciliation</h2>
+  <p id="result-scope"></p>
+  <div id="summary-cards" class="rec-cards"></div>
+  <p class="rec-muted">Exceptions can be legitimate timing or allocation differences. Confirm suggested pairs only after checking both sources.</p>
+  <div class="rec-actions">
+    <label>Filter <select id="filter"><option value="exceptions">All exceptions</option><option>Matched</option><option>Amount mismatch</option><option>Missing in ledger</option><option>Missing on statement</option><option>Duplicate review</option><option>Credit review</option><option>Reference review</option><option>Suggested match</option><option>Invalid</option><option>Out of scope</option><option>Manually confirmed</option></select></label>
+    <label>Search reference <input id="query" type="search" maxlength="120" autocomplete="off"></label>
+    <button id="manual" class="rec-secondary" type="button">Confirm a manual pair</button>
+  </div>
+  <div class="rec-scroll" tabindex="0" aria-label="Reconciliation results table">
+    <table><thead><tr><th scope="col">Category</th><th scope="col">Reference</th><th scope="col">Statement</th><th scope="col">Ledger</th><th scope="col">Difference</th><th scope="col">Statement source</th><th scope="col">Ledger source</th><th scope="col">Evidence</th><th scope="col">Status</th><th scope="col">Review</th></tr></thead><tbody id="rows"></tbody></table>
+  </div>
+  <div class="rec-actions"><button id="prev" class="rec-secondary" type="button">Previous</button><span id="pagination"></span><button id="next" class="rec-secondary" type="button">Next</button></div>
+  <p><a href="#handoff-heading">Continue to Supplier Handoff</a></p>
+</section>
+<section class="rec-panel" id="handoff" hidden aria-labelledby="handoff-heading">
+  <h2 id="handoff-heading" tabindex="-1">5. Supplier Handoff</h2>
+  <p>Review the internal register and approve each item you want to share. Download the carry-forward file to review unresolved items at a later cutoff.</p>
+  <h3>Internal action register</h3>
+  <div class="rec-actions">
+    <label>Category <select id="action-category"><option value="">All categories</option></select></label>
+    <label>Status <select id="action-filter"><option value="">All statuses</option></select></label>
+    <label>Invoice reference <input id="action-query" type="search" maxlength="256" autocomplete="off"></label>
+  </div>
+  <div class="rec-scroll rec-action-table" tabindex="0" aria-label="Internal action register">
+    <table><thead><tr><th scope="col">Reference</th><th scope="col">Automated result</th><th scope="col">Action status</th><th scope="col">Carry-forward review</th><th scope="col">Review</th></tr></thead><tbody id="action-rows"></tbody></table>
+  </div>
+  <div class="rec-actions">
+    <button id="action-prev" class="rec-secondary" type="button">Previous actions</button>
+    <span id="action-count" role="status"></span>
+    <button id="action-next" class="rec-secondary" type="button">Next actions</button>
+  </div>
+  <h3>Supplier message</h3>
+  <p>Only approved references and explicitly selected statement dates or amounts are included. Keep private information out of the wording you enter.</p>
+  <div id="supplier-requests"></div>
+  <details id="message-editing" hidden>
+    <summary>Edit message wording</summary>
+    <div class="rec-grid rec-fields rec-message-fields">
+      <label>Subject <input id="message-subject" maxlength="180" autocomplete="off"></label>
+      <label>Greeting <input id="message-greeting" maxlength="240" autocomplete="off"></label>
+      <label>Introduction <textarea id="message-intro" maxlength="1000" rows="3"></textarea></label>
+      <label>Closing <textarea id="message-closing" maxlength="500" rows="3"></textarea></label>
+    </div>
+  </details>
+  <div id="message-final" hidden>
+    <label for="message-preview">Final supplier message preview</label>
+    <textarea id="message-preview" readonly rows="12"></textarea>
+    <label class="rec-check"><input id="message-confirm" type="checkbox"> I reviewed this preview and approve the exact text for copying.</label>
+    <button id="message-copy" type="button" disabled>Copy supplier message</button>
+  </div>
+  <p id="handoff-status" role="status"></p>
+</section>
+<section class="rec-panel" id="handoff-export" hidden aria-labelledby="export-heading">
+  <h2 id="export-heading">6. Export</h2>
+  <div class="rec-actions">
+    <button id="export" type="button">Download Excel report</button>
+    <button id="carry-download" class="rec-secondary" type="button">Download carry-forward JSON</button>
+    <button id="print" class="rec-secondary" type="button">Print summary / Save PDF</button>
+  </div>
+  <p class="rec-muted">The Excel report includes the internal Action Register. The JSON contains matching evidence and status history, so keep it private. Notes, filenames and complete source documents are excluded from the JSON.</p>
+</section>
+<dialog id="action-dialog" aria-labelledby="action-heading">
+  <div class="rec-dialog-head"><h2 id="action-heading">Internal action</h2><button id="action-close" class="rec-secondary" type="button">Close</button></div>
+  <p id="action-summary"></p>
+  <p id="action-evidence"></p>
+  <div class="rec-grid rec-fields">
+    <label>Action status <select id="action-status"></select></label>
+    <label>Reviewer (optional) <input id="action-reviewer" maxlength="120" autocomplete="off"></label>
+    <label>Internal note <textarea id="action-note" maxlength="1000" rows="3"></textarea></label>
+    <label>Resolution note <textarea id="action-resolution" maxlength="1000" rows="3"></textarea></label>
+  </div>
+  <div class="rec-actions"><button id="action-save" type="button">Save internal action</button></div>
+</dialog>
+<dialog id="request-dialog" aria-labelledby="request-heading">
+  <div class="rec-dialog-head"><h2 id="request-heading">Approve supplier request</h2><button id="request-close" class="rec-secondary" type="button">Close</button></div>
+  <p id="request-reference"></p>
+  <div class="rec-grid rec-fields">
+    <label>Request category <select id="request-category"></select></label>
+    <label id="request-statement-label">Statement row for optional details <select id="request-statement"></select></label>
+  </div>
+  <p id="request-statement-details"></p>
+  <label>Supplier-facing explanation <textarea id="request-explanation" maxlength="1000" rows="4"></textarea></label>
+  <label class="rec-check"><input id="request-date" type="checkbox"> Include this statement date</label>
+  <label class="rec-check"><input id="request-amount" type="checkbox"> Include this statement amount</label>
+  <label class="rec-check"><input id="request-approve" type="checkbox"> I approve this reference and the selected details for the supplier.</label>
+  <div class="rec-actions"><button id="request-save" type="button" disabled>Add approved request</button></div>
+  <p id="request-status" role="status"></p>
+</dialog>
+<dialog id="review-dialog" aria-labelledby="review-heading">
+  <div class="rec-dialog-head"><h2 id="review-heading">Review records</h2><button id="close-review" class="rec-secondary" type="button">Close</button></div>
+  <p id="review-reason"></p>
+  <div class="rec-grid" id="review-records"></div>
+  <div id="pair-fields" class="rec-grid rec-fields"></div>
+  <label id="review-note-label">Reviewer note <textarea id="review-note" maxlength="1000" rows="3"></textarea></label>
+  <div class="rec-actions"><button id="confirm-pair" type="button">Confirm selected pair</button><button id="leave-open" class="rec-secondary" type="button">Leave unresolved</button><button id="dismiss-review" class="rec-secondary" type="button">Dismiss</button></div>
+  <p id="review-status" role="status"></p>
+</dialog>
+<section class="rec-panel rec-guide">
+  <h2>How to reconcile a supplier statement against a ledger</h2>
+  <p>Compare the supplier’s invoice references and signed balances with an accounts payable export for the same supplier and cutoff. For an open-items statement, compare balances still outstanding as of that date. For a period statement, use ledger activity from the same dates. Review missing items before changing the ledger.</p>
+  <h3>How does FileFreely handle duplicates?</h3>
+  <p>If a reference appears more than once on either side, the report keeps all source rows for review. Suggested matches use the same signed amount and transaction type with dates within three days, and require confirmation.</p>
+  <h3>What does an amount mismatch look like?</h3>
+  <p>If the supplier lists INV-104 at $420 on PDF page 2 and the ledger lists it at $400 on row 18, the signed difference is +$20. The report shows both source locations and leaves the item open.</p>
+  <h3>Can I reconcile a scanned PDF?</h3>
+  <p>Use a digital PDF with selectable text, CSV, or XLSX for the statement. If you only need to export tables first, use <a href="/pdf-to-excel/">PDF to Excel and CSV</a>.</p>
+</section>
+<details class="page-analytics">
+  <summary>Analytics preferences</summary>
+  <p>Allow Google Analytics to count a page view. Your files and form fields stay outside the analytics frame.</p>
+  <button type="button" data-analytics="yes">Allow analytics</button>
+  <button type="button" data-analytics="no">Decline analytics</button>
+  <p role="status"></p>
+</details>
+<script src="/assets/page-analytics.js" defer></script>
+</main>
+<article id="print-report" aria-label="Printable reconciliation summary"></article>
+
+<footer class="site-footer"><div class="in">
+<div><a class="brand" href="/"><svg viewBox="0 0 32 32" aria-hidden="true"><rect width="32" height="32" rx="9" fill="var(--accent)"/><path d="M11 7h7l5 5v13H11z" fill="none" stroke="var(--accent-ink)" stroke-width="2.2" stroke-linejoin="round"/><path d="M18 7v5h5" fill="none" stroke="var(--accent-ink)" stroke-width="2.2" stroke-linejoin="round"/><circle cx="23.5" cy="23.5" r="4.5" fill="var(--hi)"/></svg><span>FileFreely</span></a><p>Free PDF and image tools with no sign-up and no daily limits. Your files are processed in your browser and never uploaded.</p></div>
+<div><h4>PDF tools</h4><ul><li><a href="/merge-pdf/">Merge PDF</a></li><li><a href="/split-pdf/">Split PDF</a></li><li><a href="/jpg-to-pdf/">JPG to PDF</a></li><li><a href="/pdf-to-jpg/">PDF to JPG</a></li><li><a href="/compare-pdf/">Compare PDF</a></li><li><a href="/pdf-to-excel/">PDF to Excel</a></li><li><a href="/bank-statement-converter/">Bank statement converter</a></li><li><a href="/compress-pdf/">Compress PDF</a></li></ul></div><div><h4>Image tools</h4><ul><li><a href="/compress-image/">Compress Image</a></li><li><a href="/resize-image/">Resize Image</a></li><li><a href="/heic-to-jpg/">HEIC to JPG</a></li><li><a href="/convert-image/">Convert Image</a></li><li><a href="/bulk-image-optimizer/">Bulk Image Optimizer</a></li></ul></div>
+<div><h4>Company</h4><ul><li><a href="/about/">About</a></li><li><a href="/contact/">Contact</a></li><li><a href="/privacy/">Privacy policy</a></li><li><a href="/terms/">Terms of use</a></li></ul></div>
+</div></footer>
+<script type="module" src="./app.mjs"></script></body></html>
