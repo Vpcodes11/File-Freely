@@ -5,8 +5,10 @@
 const PRODUCTS = [
   { id: 'Aw-E8X1ATRAdThBlu1RYJA==', plan: 'monthly' },  // FileFreely Pro (vaistack3.gumroad.com/l/filefreely-pro)
   { id: 'KrJ3bbKiJMM_JLzeum_6fg==', plan: 'pass7' },    // FileFreely 7-Day Pass (vaistack3.gumroad.com/l/filefreely-7-day-pass)
+  { id: 'zT7Cf2W2Q_MXegT74j1Q6w==', plan: 'day1' },     // FileFreely: Just This File, 24-hour unlock (vaistack3.gumroad.com/l/filefreely-one-file)
 ];
-const PASS_DAYS = 7;
+const PASS_LENGTH = { pass7: 7 * 86400e3, day1: 86400e3 };
+const PASS_NAME = { pass7: '7-day pass', day1: '24-hour unlock' };
 
 const json = (body, status = 200) => new Response(JSON.stringify(body), {
   status, headers: { 'content-type': 'application/json', 'cache-control': 'no-store' }
@@ -37,9 +39,9 @@ export async function onRequestPost({ request, env }) {
       return json({ ok: true, plan: 'monthly', expires: 0 });
     }
     const sold = Date.parse(s.sale_timestamp || s.created_at || '');
-    const expires = (isFinite(sold) ? sold : Date.now()) + PASS_DAYS * 86400e3;
-    if (expires < Date.now()) return json({ ok: false, error: 'This 7-day pass has expired.' }, 403);
-    return json({ ok: true, plan: 'pass7', expires });
+    const expires = (isFinite(sold) ? sold : Date.now()) + (PASS_LENGTH[p.plan] || PASS_LENGTH.pass7);
+    if (expires < Date.now()) return json({ ok: false, error: 'This ' + (PASS_NAME[p.plan] || 'pass') + ' has expired.' }, 403);
+    return json({ ok: true, plan: p.plan, expires });
   }
   return json({ ok: false, error: 'That license key was not recognised. Copy it exactly from your Gumroad receipt.' }, 404);
 }
