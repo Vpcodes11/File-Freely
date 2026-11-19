@@ -1,0 +1,7 @@
+/* Checkout links for FileFreely Pro (Gumroad). Leave empty to hide the buy buttons. */
+window.FF_PAY = {
+  pass: 'https://vaistack3.gumroad.com/l/filefreely-7-day-pass',          // Gumroad link for the 7-day pass
+  monthly: 'https://vaistack3.gumroad.com/l/filefreely-pro',       // Gumroad link for the monthly membership
+  passPrice: '$9',
+  monthlyPrice: '$19/mo'
+};
