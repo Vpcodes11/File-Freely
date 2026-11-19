@@ -128,7 +128,7 @@ legend{font:600 1.16rem var(--display)}
 .sheet-preview td:last-child,.sheet-preview th:last-child{text-align:right;width:7.5em}
 .sheet-preview td:first-child,.sheet-preview th:first-child{width:7.5em}
 .paywall{margin-top:18px;border:2px solid var(--accent);border-radius:14px;padding:18px;background:var(--accent-soft)}
-.plans{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin-top:14px}
+.plans{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin-top:14px}
 .plan{display:flex;flex-direction:column;gap:4px;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:14px;color:var(--ink);text-decoration:none}
 .plan.primary{border:2px solid var(--accent)}
 .plan .price{font:700 1.5rem var(--display);color:var(--accent)}
@@ -139,7 +139,7 @@ legend{font:600 1.16rem var(--display)}
 .steps li::before{content:counter(s);position:absolute;left:0;top:0;width:1.6em;height:1.6em;border-radius:50%;background:var(--accent);color:var(--accent-ink);display:grid;place-items:center;font-weight:700;font-size:.85rem}
 .related{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
 .related a{border:1px solid var(--line);border-radius:999px;padding:6px 12px;background:var(--surface);text-decoration:none;font-weight:600;font-size:.92rem}
-.price-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;margin-top:16px}
+.price-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:14px;margin-top:16px}
 .price-grid .card h3{margin-bottom:4px}.price-grid .big{font:700 2rem var(--display);color:var(--accent)}
 .price-grid ul{padding-left:1.1em}
 @media(max-width:720px){.plans,.price-grid{grid-template-columns:minmax(0,1fr)}}
