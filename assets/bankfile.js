@@ -95,7 +95,7 @@
     }
     return null;
   }
-  function guessDateOrder(values) {
+  function guessDateOrder(values, hint) {
     let mdy = 0, dmy = 0;
     for (const v of values) {
       const m = String(v || '').trim().match(/^(\d{1,2})[-\/.](\d{1,2})/);
@@ -103,7 +103,7 @@
       if (+m[1] > 12 && +m[2] <= 12) dmy++;
       if (+m[2] > 12 && +m[1] <= 12) mdy++;
     }
-    return dmy > mdy ? 'dmy' : 'mdy';
+    return dmy > mdy ? 'dmy' : mdy > dmy ? 'mdy' : (hint === 'dmy' ? 'dmy' : 'mdy');
   }
   /* Returns a number or null. Handles $1,234.56  (12.00)  12.00-  12.00 CR/DR  1.234,56 */
   function parseAmount(raw) {
@@ -257,7 +257,7 @@
   const RX = {
     date: /^(trans(action)?\.? ?)?date|posted|posting date|booking date|value date|^date/i,
     desc: /desc|details|narrative|payee|merchant|memo|particulars|transaction$|^name|reference text|^transaction details/i,
-    amount: /^(transaction )?amount|^value$|^amount|^net amount|sum/i,
+    amount: /^(transaction )?amount|^value$|^amount|^net amount|^net total|sum/i,
     debit: /debit|withdraw|paid out|money out|spent|outflow|charges?$|payments? out/i,
     credit: /credit|deposit|paid in|money in|received|inflow|payments? in|refund/i,
     check: /check or slip|check ?(no|number|#)|cheque|chq|^ref(erence)?( no| number)?$|^num/i,
@@ -266,6 +266,13 @@
   function findHeader(rows) {
     for (let i = 0; i < Math.min(rows.length, 30); i++) {
       const r = rows[i].map(c => String(c));
+      if (r.some(c => /\d/.test(c) && parseDate(c, 'auto', 2024))) continue;
+      const hits = r.filter(c => RX.date.test(c) || RX.desc.test(c) || RX.amount.test(c) || RX.debit.test(c) || RX.credit.test(c)).length;
+      if (hits >= 2 && r.filter(c => c).length >= 2 && r.some(c => RX.date.test(c))) return i;
+    }
+    for (let i = 0; i < Math.min(rows.length, 30); i++) {
+      const r = rows[i].map(c => String(c));
+      if (r.some(c => /\d/.test(c) && parseDate(c, 'auto', 2024))) continue;
       const hits = r.filter(c => RX.date.test(c) || RX.desc.test(c) || RX.amount.test(c) || RX.debit.test(c) || RX.credit.test(c)).length;
       if (hits >= 2 && r.filter(c => c).length >= 2) return i;
     }
@@ -300,7 +307,7 @@
 
   /* ---------- transactions ---------- */
   function buildTransactions(data, map, opts) {
-    const order = opts.dateOrder === 'auto' ? guessDateOrder(data.map(r => r[map.date])) : opts.dateOrder;
+    const order = opts.dateOrder === 'auto' ? guessDateOrder(data.map(r => r[map.date]), opts.dateHint) : opts.dateOrder;
     const tx = []; let skipped = 0;
     for (const r of data) {
       const date = parseDate(r[map.date], order, opts.year);
@@ -312,7 +319,7 @@
       } else amount = parseAmount(r[map.amount]);
       if (!date || amount === null) { skipped++; continue; }
       if (opts.flip) amount = -amount;
-      const payee = String(r[map.desc] ?? '').replace(/\s+/g, ' ').trim();
+      const payee = String(r[map.desc] ?? '').replace(/\s+/g, ' ').trim().replace(/^'+/, '');
       if (/^(opening|closing|brought forward|carried forward|balance b\/?f|balance c\/?f|total)\b/i.test(payee)) { skipped++; continue; }
       tx.push({ date, amount: Math.round(amount * 100) / 100, payee: payee || 'Transaction', memo: map.memo >= 0 ? String(r[map.memo] ?? '').trim() : '', check: map.check >= 0 ? String(r[map.check] ?? '').replace(/\D/g, '').slice(0, 12) : '', fitid: map.fitid >= 0 ? String(r[map.fitid] ?? '') : '' });
     }
@@ -437,7 +444,7 @@
     root.append(drop, fileName, mapBox, outBox, preview, actions, pay, lic, status);
 
     let table = null, header = [], data = [], meta = {}, map = null, txs = [], licensed = null;
-    const opts = { dateOrder: 'auto', flip: false, year: new Date().getFullYear(), format: cfg.output, accountType: cfg.accountType || 'CHECKING', account: '', bid: '3000', currency: 'USD', iifAccount: '', iifOffset: 'Ask My Accountant', iifNames: true, ukDates: false };
+    const opts = { dateOrder: 'auto', dateHint: cfg.dateHint || '', flip: !!cfg.flip, year: new Date().getFullYear(), format: cfg.output, accountType: cfg.accountType || 'CHECKING', account: '', bid: '3000', currency: cfg.currency || 'USD', iifAccount: '', iifOffset: 'Ask My Accountant', iifNames: true, ukDates: false };
 
     function say(t, bad) { status.textContent = t; status.className = bad ? 'error' : 'muted'; }
     function select(id, label, options, value, onchange, hint) {
@@ -533,11 +540,12 @@
         a.addEventListener('click', () => { try { gtag('event', 'begin_checkout', { item_name: title }); } catch (e) { } });
         return a;
       };
+      if (PAY.day) plans.append(plan('Just this file', PAY.dayPrice || '$5', 'Full downloads for 24 hours. One-time payment.', PAY.day, false));
       plans.append(plan('7-day pass', PAY.passPrice || '$9', 'Unlimited files for 7 days. One-time payment.', PAY.pass, false), plan('Pro monthly', PAY.monthlyPrice || '$19/mo', 'Unlimited files every month. Cancel anytime.', PAY.monthly, true));
       const free = el('button', { type: 'button', class: 'secondary', text: 'Download the first ' + FREE_LIMIT + ' free' });
       free.addEventListener('click', () => save(txs.slice(0, FREE_LIMIT), true));
       pay.append(el('h3', { text: 'Your file has ' + txs.length + ' transactions' }), el('p', { class: 'muted', text: 'Free downloads include the first ' + FREE_LIMIT + ' transactions. Unlock the full file with FileFreely Pro. After paying, your license key arrives on the receipt and by email: paste it with "Enter license key".' }), plans, el('div', { class: 'actions' }, [free]));
-      if (!PAY.pass && !PAY.monthly) pay.append(el('p', { class: 'muted', text: 'Paid plans open shortly. Until then, contact us for full files.' }));
+      if (!PAY.pass && !PAY.monthly && !PAY.day) pay.append(el('p', { class: 'muted', text: 'Paid plans open shortly. Until then, contact us for full files.' }));
       pay.hidden = false;
       pay.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
       try { gtag('event', 'paywall_view', { tx_count: txs.length, format: opts.format }); } catch (e) { }
