@@ -541,10 +541,10 @@
         return a;
       };
       if (PAY.day) plans.append(plan('Just this file', PAY.dayPrice || '$5', 'Full downloads for 24 hours. One-time payment.', PAY.day, false));
-      plans.append(plan('7-day pass', PAY.passPrice || '$9', 'Unlimited files for 7 days. One-time payment.', PAY.pass, false), plan('Pro monthly', PAY.monthlyPrice || '$19/mo', 'Unlimited files every month. Cancel anytime.', PAY.monthly, true));
+      plans.append(plan('7-day pass', PAY.passPrice || '$9', 'Unlimited files for 7 days. One-time payment.', PAY.pass, false), plan('Pro monthly', PAY.monthlyPrice || '$19/mo', PAY.monthlyNote || 'Unlimited files every month. Cancel anytime.', PAY.monthly, true));
       const free = el('button', { type: 'button', class: 'secondary', text: 'Download the first ' + FREE_LIMIT + ' free' });
       free.addEventListener('click', () => save(txs.slice(0, FREE_LIMIT), true));
-      pay.append(el('h3', { text: 'Your file has ' + txs.length + ' transactions' }), el('p', { class: 'muted', text: 'Free downloads include the first ' + FREE_LIMIT + ' transactions. Unlock the full file with FileFreely Pro. After paying, your license key arrives on the receipt and by email: paste it with "Enter license key".' }), plans, el('div', { class: 'actions' }, [free]));
+      pay.append(el('h3', { text: 'Your file has ' + txs.length + ' transactions' }), el('p', { class: 'trust', text: '🔒 Your file never left your computer. Every transaction above was read in your browser.' }), el('p', { class: 'muted', text: 'Free downloads include the first ' + FREE_LIMIT + ' transactions. Unlock the full file with FileFreely Pro. After paying, your license key arrives on the receipt and by email: paste it with "Enter license key".' }), plans, el('div', { class: 'actions' }, [free]));
       if (!PAY.pass && !PAY.monthly && !PAY.day) pay.append(el('p', { class: 'muted', text: 'Paid plans open shortly. Until then, contact us for full files.' }));
       pay.hidden = false;
       pay.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
